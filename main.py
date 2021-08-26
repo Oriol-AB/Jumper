@@ -3,11 +3,13 @@ def Game(DificultyAmount=0) -> int:
     import sys
     import time
     import pygame
-    from Blur_Image import BlurImage
+    from Data.Blur_Image import BlurImage
 
     pygame.init()
 
     pygame.font.init()
+
+    pygame.mixer.init()
 
 
     font = pygame.font.Font("Font/PressStart2P-Regular.ttf", 60)
@@ -19,22 +21,23 @@ def Game(DificultyAmount=0) -> int:
     WIDTH = 900 #Temp
     HEIGHT = 600 #Temp
 
-    MAX_FPS = 120
+    MAX_FPS = 60
 
     Main_Clock = pygame.time.Clock()
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    logo = pygame.image.load("Data/Logo.png")
 
+    
 
     pygame.display.set_icon(logo)
 
     pygame.display.set_caption("Jumper")
 
-    backgroud_img = pygame.image.load("background.png").convert()
+    backgroud_img = pygame.image.load("Data/background.png").convert()
 
-    sandpit_img = pygame.transform.scale(pygame.image.load("Sandpit.png").convert(), (529, 140))
+    sandpit_img = pygame.transform.scale(pygame.image.load("Data/Sandpit.png").convert(), (529, 140))
 
     sandpit_img.set_colorkey((255, 255, 255))
 
@@ -55,14 +58,14 @@ def Game(DificultyAmount=0) -> int:
             if DificultyAmount == 0:
                 self.minimum = 150
 
-                with open("last_difficulty.txt", "w") as f:
+                with open("Data/last_difficulty.txt", "w") as f:
                     f.write(str(self.minimum))
                     f.close()
 
             
             else:
 
-                with open("last_difficulty.txt", "r") as f:
+                with open("Data/last_difficulty.txt", "r") as f:
                     self.minimum = int(f.read())
 
                     f.close()
@@ -71,7 +74,7 @@ def Game(DificultyAmount=0) -> int:
 
                 if self.minimum + DificultyAmount >= self.SCALE[0]:
 
-                    with open("last_difficulty.txt", "w") as f:
+                    with open("Data/last_difficulty.txt", "w") as f:
                         f.write("150")
                         f.close()
 
@@ -79,7 +82,7 @@ def Game(DificultyAmount=0) -> int:
                 
                 else:
                     self.minimum += DificultyAmount
-                    with open("last_difficulty.txt", "w") as f:
+                    with open("Data/last_difficulty.txt", "w") as f:
                         f.write(str(self.minimum))
 
 
@@ -140,6 +143,30 @@ def Game(DificultyAmount=0) -> int:
 
     MainPowerBar = PowerBar()
 
+    if MainPowerBar.minimum == 150:
+        song = pygame.mixer.music.load("Music/2.wav")
+        pygame.mixer.music.play(loops=100, fade_ms = 1000)
+
+    elif MainPowerBar.minimum == 250:
+        pass
+
+
+    elif MainPowerBar.minimum == 350:
+        song = pygame.mixer.music.load("Music/3.wav")
+
+        pygame.mixer.music.play(loops=100, fade_ms = 1000)
+
+    elif MainPowerBar.minimum == 450:
+        song = pygame.mixer.music.load("Music/4.wav")
+
+        pygame.mixer.music.play(loops=100,fade_ms = 1000)
+    
+    else:
+        print(MainPowerBar.minimum)
+
+    
+    
+
     if MainPowerBar.ended == True:
         return 3
 
@@ -167,7 +194,7 @@ def Game(DificultyAmount=0) -> int:
                                     pygame.transform.scale(pygame.image.load("Player/Player.png").convert(), (200, 250))
             ]
             
-            self.jump_images = [
+            self.jump_Data = [
                                     pygame.transform.scale(pygame.image.load("Player/Player.png").convert(), (200, 250)),
                                     pygame.image.load("Player/1.png").convert(),
                                     pygame.image.load("Player/2.png").convert(),
@@ -181,7 +208,7 @@ def Game(DificultyAmount=0) -> int:
 
 
 
-            for i in self.jump_images:
+            for i in self.jump_Data:
                 i.set_colorkey((0, 0, 0))
 
             self.idle_image[0].set_colorkey((0, 0, 0))
@@ -193,7 +220,7 @@ def Game(DificultyAmount=0) -> int:
                 return self.idle_image[0]
 
             elif self.animation_state == 1:
-                return self.jump_images[round(self.index)]
+                return self.jump_Data[round(self.index)]
 
         
         def Update(self) -> bool:
@@ -201,7 +228,7 @@ def Game(DificultyAmount=0) -> int:
                 self.index = 0
             
             elif self.animation_state == 1:
-                if self.index < len(self.jump_images) - 1:
+                if self.index < len(self.jump_Data) - 1:
                     self.index += 0.03
 
                     self.to_render = self.Animate()
@@ -218,7 +245,7 @@ def Game(DificultyAmount=0) -> int:
 
 
 
-            if self.to_render in self.jump_images and self.to_render != self.jump_images[0]:
+            if self.to_render in self.jump_Data and self.to_render != self.jump_Data[0]:
 
                 self.position[0] += 1
                 display.blit(self.to_render, (self.position[0]+70, self.position[1]-75))
@@ -230,7 +257,7 @@ def Game(DificultyAmount=0) -> int:
     
     MainPlayer = Player()
 
-    update_rect = pygame.Rect(20, 150, 579, 310)
+    update_rect = pygame.Rect(20, 100, 579, 360)
 
     
     count = 0
@@ -309,6 +336,7 @@ def Game(DificultyAmount=0) -> int:
 
                         pygame.display.update(MainPowerBar.outline_rect)
 
+
                         time.sleep(1)
                         
                         if ended:
@@ -319,9 +347,9 @@ def Game(DificultyAmount=0) -> int:
                         if MainPowerBar.CheckPower():
                             pygame.display.flip()
 
-                            pygame.image.save(display, "temp.png")
+                            pygame.image.save(display, "Data/temp.png")
 
-                            BlurImage("temp.png", 9)
+                            BlurImage("Data/temp.png", 9)
 
                             
 
@@ -354,11 +382,11 @@ def Game(DificultyAmount=0) -> int:
 
         
 
-        """if MainPlayer.index == len(MainPlayer.jump_images) - 1:
+        """if MainPlayer.index == len(MainPlayer.jump_Data) - 1:
             ended = True"""
         
 
-        if MainPlayer.index >= len(MainPlayer.jump_images) - 1:
+        if MainPlayer.index >= len(MainPlayer.jump_Data) - 1:
             
             if MainPowerBar.TooMuchPower():
                 return 1 
@@ -375,7 +403,7 @@ def Game(DificultyAmount=0) -> int:
         
         Main_Clock.tick(MAX_FPS)
 
-        print(round(Main_Clock.get_fps()))
+        #print(round(Main_Clock.get_fps()))
 
         if count == 0:
             pygame.display.flip()
@@ -385,6 +413,8 @@ def Game(DificultyAmount=0) -> int:
             pygame.display.update(update_rect)
             pygame.display.update(MainPowerBar.outline_rect)
 
+
+        
 
 #---------------------------------------------------------------------------------------------------------
 
@@ -406,19 +436,19 @@ def WellDone()-> int:
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    logo = pygame.image.load("Data/Logo.png")
 
 
     pygame.display.set_icon(logo)
 
     pygame.display.set_caption("Jumper")
 
-    background = pygame.image.load("temp.png").convert()
+    background = pygame.image.load("Data/temp.png").convert()
 
-    button = pygame.transform.scale(pygame.image.load("GUI_BUTTON.png").convert(), (300, 75))
-    white_button = pygame.transform.scale(pygame.image.load("GUI_BUTTON_WHITE.png").convert(), (300, 75))
+    button = pygame.transform.scale(pygame.image.load("Data/GUI_BUTTON.png").convert(), (300, 75))
+    white_button = pygame.transform.scale(pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert(), (300, 75))
 
-    text = pygame.image.load("Marked_Font.png").convert()
+    text = pygame.image.load("Data/Marked_Font.png").convert()
 
     text.set_colorkey((0, 0, 0))
     button.set_colorkey((0, 0, 0))
@@ -439,7 +469,7 @@ def WellDone()-> int:
 
         display.blit(background, (0, 0))
         
-        display.blit(text, (150, 250))
+        display.blit(text, (130, 250))
     
         
         display.blit(to_render, (305, 375))
@@ -471,7 +501,7 @@ def WellDone()-> int:
         else:
             to_render = button
 
-        MainClock.tick(120)
+        MainClock.tick(60)
 
         pygame.display.flip()
 
@@ -510,7 +540,7 @@ def TryAgain() -> int:
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    logo = pygame.image.load("Data/Logo.png")
 
 
     pygame.display.set_icon(logo)
@@ -519,13 +549,13 @@ def TryAgain() -> int:
 
     MainClock = pygame.time.Clock()
 
-    button = pygame.image.load("GUI_BUTTON.png").convert()
+    button = pygame.image.load("Data/GUI_BUTTON.png").convert()
 
-    white_button = pygame.image.load("GUI_BUTTON_WHITE.png").convert()
+    white_button = pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert()
 
-    TryAgain = pygame.image.load("TryAgain.png").convert()
+    TryAgain = pygame.image.load("Data/TryAgain.png").convert()
 
-    TooMuch = pygame.image.load("Too-Much.png").convert()
+    TooMuch = pygame.image.load("Data/Too-Much.png").convert()
 
     yes_to_render = button
 
@@ -571,7 +601,7 @@ def TryAgain() -> int:
             no_to_render = button
         
         
-        display.blit(TooMuch, (WIDTH/2-280, HEIGHT/2 -100))
+        display.blit(TooMuch, (WIDTH/2-305, HEIGHT/2 -100))
 
         display.blit(TryAgain, (-20, HEIGHT/2 - 20))
 
@@ -587,7 +617,7 @@ def TryAgain() -> int:
 
         pygame.display.flip()
 
-        MainClock.tick(120)
+        MainClock.tick(60)
 
 
 
@@ -605,7 +635,7 @@ def Congratulations() -> None:
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    logo = pygame.image.load("Data/Logo.png")
 
 
     pygame.display.set_icon(logo)
@@ -614,9 +644,9 @@ def Congratulations() -> None:
     
     Clock = pygame.time.Clock()
 
-    background = pygame.image.load("temp.png").convert()
+    background = pygame.image.load("Data/temp.png").convert()
 
-    Congrats = pygame.image.load("Congrats.png").convert()
+    Congrats = pygame.image.load("Data/Congrats.png").convert()
 
     font = pygame.font.Font("Font/PressStart2P-Regular.ttf", 15)
 
@@ -628,9 +658,9 @@ def Congratulations() -> None:
 
     
 
-    button = pygame.image.load("GUI_BUTTON.png").convert()
+    button = pygame.image.load("Data/GUI_BUTTON.png").convert()
 
-    white_button = pygame.image.load("GUI_BUTTON_WHITE.png").convert()
+    white_button = pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert()
 
     to_render = button
 
@@ -638,7 +668,7 @@ def Congratulations() -> None:
 
     Congrats.set_colorkey((0, 0, 0))
 
-    Thanks = pygame.transform.scale(pygame.image.load("thanks.png").convert(), (600, 40))
+    Thanks = pygame.transform.scale(pygame.image.load("Data/thanks.png").convert(), (600, 40))
 
     Thanks.set_colorkey((0, 0, 0))
 
@@ -649,9 +679,9 @@ def Congratulations() -> None:
 
         display.fill((0, 0, 0))
 
-        display.blit(Congrats, (125, 200))
+        display.blit(Congrats, (80, 200))
 
-        display.blit(Thanks, (175, 285))
+        display.blit(Thanks, (165, 285))
 
         display.blit(credit, (540, 550))
 
@@ -678,7 +708,7 @@ def Congratulations() -> None:
             to_render = button
 
     
-        Clock.tick(120)
+        Clock.tick(60)
 
         pygame.display.flip()
     
@@ -691,15 +721,22 @@ def MainMenu() -> int:
 
     pygame.font.init()
 
+    pygame.mixer.init()
+
     WIDTH, HEIGHT = 900, 600
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    song = pygame.mixer.music.load("Music/5.wav")
+
+    pygame.mixer.music.play(loops=100, fade_ms=1500)
+
+    logo = pygame.image.load("Data/Logo.png")
 
     pygame.display.set_icon(logo)
 
     pygame.display.set_caption("Jumper")
+
 
     Clock = pygame.time.Clock()
 
@@ -708,17 +745,17 @@ def MainMenu() -> int:
     small_font = pygame.font.Font("Font/PressStart2P-Regular.ttf", 15)
 
     play = font.render("Jugar", False, (0, 0, 0))
-    Quit = font.render("Salir", False, (0, 0, 0))
+    Quit = font.render("Tutorial", False, (0, 0, 0))
 
     credits = small_font.render("Creado por: Oriol AB", False, "orange")
 
-    button = pygame.transform.scale(pygame.image.load("GUI_BUTTON.png").convert(), (200, 75))
+    button = pygame.transform.scale(pygame.image.load("Data/GUI_BUTTON.png").convert(), (300, 75))
 
-    white_button = pygame.transform.scale(pygame.image.load("GUI_BUTTON_WHITE.png").convert(), (200, 75))
+    white_button = pygame.transform.scale(pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert(), (300, 75))
 
-    button_rect = pygame.Rect(355, 310, 200, 75)
+    button_rect = pygame.Rect(300, 310, 300, 75)
 
-    quit_button_rect = pygame.Rect(355, 410, 200, 75)
+    quit_button_rect = pygame.Rect(300, 410, 250, 75)
 
     button_to_render = button
 
@@ -726,7 +763,7 @@ def MainMenu() -> int:
 
 
 
-    images = [
+    Data = [
         pygame.transform.scale(pygame.image.load("Title/1.png").convert(), (500, 160)),
         pygame.transform.scale(pygame.image.load("Title/2.png").convert(), (500, 160)),
         pygame.transform.scale(pygame.image.load("Title/3.png").convert(), (500, 160)),
@@ -758,7 +795,7 @@ def MainMenu() -> int:
 
         display.blit(play, (369, 328))
 
-        display.blit(Quit, (369, 428))
+        display.blit(Quit, (309, 428))
 
         display.blit(credits, (570, 560))
 
@@ -767,7 +804,7 @@ def MainMenu() -> int:
         if to_render > 14:
             to_render = 0
 
-        display.blit(images[round(to_render)], (210, 150))
+        display.blit(Data[round(to_render)], (210, 125))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -780,8 +817,7 @@ def MainMenu() -> int:
                         return 1
                     
                     elif quit_button_rect.collidepoint(mx, my):
-                        pygame.quit()
-                        sys.exit()
+                        return 2
         
         if button_rect.collidepoint(mx, my):
             button_to_render = white_button
@@ -795,8 +831,8 @@ def MainMenu() -> int:
 
         else:
             quit_button_to_render = button
-        
 
+        
         pygame.display.flip()
 
         Clock.tick(120)
@@ -834,21 +870,21 @@ def TooShort() -> int:
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    logo = pygame.image.load("Logo.png")
+    logo = pygame.image.load("Data/Logo.png")
 
     pygame.display.set_icon(logo)
 
     pygame.display.set_caption("Jumper")
 
-    TooShort = pygame.image.load("Too-Short.png").convert()
+    TooShort = pygame.image.load("Data/Too-Short.png").convert()
 
-    TryAgain = pygame.image.load("TryAgain.png").convert()
+    TryAgain = pygame.image.load("Data/TryAgain.png").convert()
 
     MainClock = pygame.time.Clock()
 
-    button = pygame.image.load("GUI_BUTTON.png").convert()
+    button = pygame.image.load("Data/GUI_BUTTON.png").convert()
 
-    white_button = pygame.image.load("GUI_BUTTON_WHITE.png").convert()
+    white_button = pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert()
 
     yes_to_render = button
 
@@ -910,32 +946,150 @@ def TooShort() -> int:
 
         pygame.display.flip()
 
-        MainClock.tick(120)
+        MainClock.tick(60)
+
+
+
+def Tutorial():
+    import pygame
+    import sys
+
+
+    pygame.init()
+
+    pygame.font.init()
+
+    font = pygame.font.Font("Font/PressStart2P-Regular.ttf", 25)
+
+
+    
+    WIDTH, HEIGHT = 900, 600
+
+    display = pygame.display.set_mode((900, 600))
+
+    Clock = pygame.time.Clock()
+
+    button = pygame.image.load("Data/GUI_BUTTON_50x50.png").convert()
+
+    next_button = pygame.image.load("Data/GUI_BUTTON.png").convert()
+
+    next_button.set_colorkey((0, 0, 0))
+
+
+    white_next_button = pygame.image.load("Data/GUI_BUTTON_WHITE.png").convert()
+
+    white_next_button.set_colorkey((0, 0, 0))
+
+    button.set_colorkey((0, 255, 0))
+
+    white_button = pygame.image.load("Data/GUI_BUTTON_50x50_WHITE.png").convert()
+
+    white_button.set_colorkey((0, 255, 0))
+
+    button_rect = pygame.Rect(840, 10, 50, 50)
+
+    next_button_rect = pygame.Rect(200, 400, 200, 75)
+
+
+    tutorial_screens = [pygame.image.load("Data/tut2.png"), pygame.image.load("Data/tutorial.png").convert()] 
+
+    index = 0
+
+    to_render = tutorial_screens[index]
+
+    next_button_to_render = next_button
+
+    button_to_render = button
+
+
+    txt1 = font.render("¡Ayúdala a ganar", False, (0, 0, 0))
+
+    txt2 = font.render("los juegos olímpicos!", False, (0, 0, 0))
+
+    while True:
+
+        to_render = tutorial_screens[index]
+
+        mx, my = pygame.mouse.get_pos()
+
+        display.fill((0, 0, 0))
+
+
+        display.blit(to_render, (0, 0))
+
+        display.blit(button_to_render, button_rect)
+
+        display.blit(next_button, next_button_rect)
+
+        if index == 0:
+            display.blit(txt1, (270, 190))
+
+            display.blit(txt2, (230, 240))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if button_rect.collidepoint(mx, my):
+                   return 1
+
+                if next_button_rect.collidepoint(mx, my):
+                    index += 1
+                    if index > len(tutorial_screens) - 1:
+                        index -= 1
+
+        if button_rect.collidepoint(mx, my):
+            button_to_render = white_button
+
+        else:
+            button_to_render = button
+
+
+        if next_button_rect.collidepoint(mx, my):
+            next_button_to_render = white_next_button
+
+        else:
+            next_button_to_render = next_button
+        
+        Clock.tick(60)
+
+        pygame.display.flip()
 
         
 
 if __name__ == "__main__":
-    count = 0
-    MainMenu()
-    while True:
-        if count == 0:
-            ReturnValue = Game()
-        else:
-            ReturnValue = Game(100)
-
-        if ReturnValue == 1:
-            TryAgain()
-            count = -1
-
-        elif ReturnValue == 2:
-            WellDone()
-
-        elif ReturnValue == 3:
-            Congratulations()
-            break
+    """count = 0
     
-        elif ReturnValue == 4:
-            TooShort()
-            count = -1
+    while True:
+        if MainMenu() == 1:
+    
+            while True:
+                if count == 0:
+                    ReturnValue = Game()
+                else:
+                    ReturnValue = Game(100)
 
-        count += 1
+                if ReturnValue == 1:
+                    TryAgain()
+                    count = -1
+
+                elif ReturnValue == 2:
+                    WellDone()
+
+                elif ReturnValue == 3:
+                    Congratulations()
+                    break
+            
+                elif ReturnValue == 4:
+                    TooShort()
+                    count = -1
+
+                count += 1
+
+        else:
+            Tutorial()"""
+
+
+    Tutorial()
