@@ -21,7 +21,7 @@ def Game(DificultyAmount=0) -> int:
     WIDTH = 900 #Temp
     HEIGHT = 600 #Temp
 
-    MAX_FPS = 60
+    MAX_FPS = 120
 
     Main_Clock = pygame.time.Clock()
 
@@ -179,7 +179,15 @@ def Game(DificultyAmount=0) -> int:
 
     class Player:
         def __init__(self) -> None:
-            self.position = [95, 150]
+
+            if MainPowerBar.minimum == 150 or MainPowerBar.minimum == 250:
+                self.position = [95, 150]
+            
+            elif MainPowerBar.minimum == 350:
+                self.position = [75, 150]
+            
+            elif MainPowerBar.minimum == 450:
+                self.position = [40, 150]
         
             self.scale = [60, 150]
 
@@ -246,8 +254,18 @@ def Game(DificultyAmount=0) -> int:
 
 
             if self.to_render in self.jump_Data and self.to_render != self.jump_Data[0]:
+                if MainPowerBar.minimum == 150:
+                    self.position[0] += 0.5
 
-                self.position[0] += 1
+                if MainPowerBar.minimum == 250:
+                    self.position[0] += 1
+
+                if MainPowerBar.minimum == 350:
+                    self.position[0] += 1.5
+
+                if MainPowerBar.minimum == 450:
+                    self.position[0] += 2
+
                 display.blit(self.to_render, (self.position[0]+70, self.position[1]-75))
             
             else: 
@@ -257,7 +275,7 @@ def Game(DificultyAmount=0) -> int:
     
     MainPlayer = Player()
 
-    update_rect = pygame.Rect(20, 100, 579, 360)
+    update_rect = pygame.Rect(20, 100, 760, 360)
 
     
     count = 0
@@ -379,7 +397,8 @@ def Game(DificultyAmount=0) -> int:
 
                                 return 4
                                 pygame.quit()
-
+        
+        
         
 
         """if MainPlayer.index == len(MainPlayer.jump_Data) - 1:
@@ -412,7 +431,8 @@ def Game(DificultyAmount=0) -> int:
         else:
             pygame.display.update(update_rect)
             pygame.display.update(MainPowerBar.outline_rect)
-
+        
+    
 
         
 
@@ -501,7 +521,7 @@ def WellDone()-> int:
         else:
             to_render = button
 
-        MainClock.tick(60)
+        MainClock.tick(120)
 
         pygame.display.flip()
 
@@ -617,7 +637,7 @@ def TryAgain() -> int:
 
         pygame.display.flip()
 
-        MainClock.tick(60)
+        MainClock.tick(120)
 
 
 
@@ -708,7 +728,7 @@ def Congratulations() -> None:
             to_render = button
 
     
-        Clock.tick(60)
+        Clock.tick(120)
 
         pygame.display.flip()
     
@@ -727,9 +747,11 @@ def MainMenu() -> int:
 
     display = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    song = pygame.mixer.music.load("Music/5.wav")
+    
 
-    pygame.mixer.music.play(loops=100, fade_ms=1500)
+    if not pygame.mixer.music.get_busy():
+        song = pygame.mixer.music.load("Music/5.wav")
+        pygame.mixer.music.play(loops=100, fade_ms=1500)
 
     logo = pygame.image.load("Data/Logo.png")
 
@@ -755,7 +777,7 @@ def MainMenu() -> int:
 
     button_rect = pygame.Rect(300, 310, 300, 75)
 
-    quit_button_rect = pygame.Rect(300, 410, 250, 75)
+    quit_button_rect = pygame.Rect(300, 410, 300, 75)
 
     button_to_render = button
 
@@ -788,6 +810,8 @@ def MainMenu() -> int:
         mx, my = pygame.mouse.get_pos()
 
         display.fill((0, 0, 0))
+
+        
 
         display.blit(button_to_render, button_rect)
 
@@ -831,6 +855,7 @@ def MainMenu() -> int:
 
         else:
             quit_button_to_render = button
+
 
         
         pygame.display.flip()
@@ -946,7 +971,7 @@ def TooShort() -> int:
 
         pygame.display.flip()
 
-        MainClock.tick(60)
+        MainClock.tick(120)
 
 
 
@@ -962,10 +987,21 @@ def Tutorial():
     font = pygame.font.Font("Font/PressStart2P-Regular.ttf", 25)
 
 
+
     
     WIDTH, HEIGHT = 900, 600
 
     display = pygame.display.set_mode((900, 600))
+
+
+    logo = pygame.image.load("Data/Logo.png").convert()
+
+    logo.set_colorkey((0, 0, 0))
+
+    pygame.display.set_caption("Jumper")
+
+    pygame.display.set_icon(logo)
+
 
     Clock = pygame.time.Clock()
 
@@ -988,10 +1024,18 @@ def Tutorial():
 
     button_rect = pygame.Rect(840, 10, 50, 50)
 
-    next_button_rect = pygame.Rect(200, 400, 200, 75)
+    next_button_rect = pygame.Rect(525, 400, 200, 75)
+
+    prev_button_rect = pygame.Rect(260, 400, 200, 75)
 
 
-    tutorial_screens = [pygame.image.load("Data/tut2.png"), pygame.image.load("Data/tutorial.png").convert()] 
+    tutorial_screens = [
+                pygame.image.load("Data/tut2.png").convert(), 
+                pygame.image.load("Data/tutorial.png").convert(), 
+                pygame.image.load("Data/tutorial3.png").convert(),
+                pygame.image.load("Data/tutorial4.png").convert()
+                
+    ] 
 
     index = 0
 
@@ -999,12 +1043,31 @@ def Tutorial():
 
     next_button_to_render = next_button
 
+    prev_button_to_render = next_button
+
     button_to_render = button
 
+    right_arrow = pygame.image.load("Data/Right_Arrow.png").convert()
+
+    left_arrow = pygame.image.load("Data/Left_arrow.png").convert()
+
+    right_arrow.set_colorkey((255, 255, 255))
+
+    left_arrow.set_colorkey((255, 255, 255))
 
     txt1 = font.render("¡Ayúdala a ganar", False, (0, 0, 0))
 
     txt2 = font.render("los juegos olímpicos!", False, (0, 0, 0))
+
+    space = font.render("espacio", False, (0, 0, 0))
+
+    tutorial3_text1 = font.render("Mantén la barra", False, (0, 0, 0))
+
+    tutorial3_text2 = font.render("por encima del mínimo...", False, (0, 0, 0))
+
+    tutorial4_text1 = font.render("¡Pero por debajo", False, (0, 0, 0))
+
+    tutorial4_text2 = font.render("del máximo!", False, (0, 0, 0))
 
     while True:
 
@@ -1019,12 +1082,39 @@ def Tutorial():
 
         display.blit(button_to_render, button_rect)
 
-        display.blit(next_button, next_button_rect)
+        display.blit(next_button_to_render, next_button_rect)
+
+        display.blit(prev_button_to_render, prev_button_rect)
+
+        #pygame.draw.rect(display, (255, 0, 0), (225, 415, 150, 50))
+
+
+        #525, 400
+
+
+        display.blit(right_arrow, (555, 412))
+
+        display.blit(left_arrow, (290, 412))
+
+
+        if index == 1:
+            display.blit(space, (379, 215))
 
         if index == 0:
             display.blit(txt1, (270, 190))
 
             display.blit(txt2, (230, 240))
+        
+        if index == 2:
+            display.blit(tutorial3_text1, (300, 200))
+
+            display.blit(tutorial3_text2, (200, 250))
+
+            pygame.draw.rect(display, (255, 255, 255), (348, 500, 7, 25), 3)
+        
+        if index == 3:
+            display.blit(tutorial4_text1, (285, 220))
+            display.blit(tutorial4_text2, (350, 270))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1040,6 +1130,12 @@ def Tutorial():
                     if index > len(tutorial_screens) - 1:
                         index -= 1
 
+                if prev_button_rect.collidepoint(mx, my):
+                    index -= 1
+
+                    if index < 0:
+                        index = 0
+
         if button_rect.collidepoint(mx, my):
             button_to_render = white_button
 
@@ -1052,15 +1148,24 @@ def Tutorial():
 
         else:
             next_button_to_render = next_button
+
         
-        Clock.tick(60)
+        if prev_button_rect.collidepoint(mx, my):
+            prev_button_to_render = white_next_button
+        
+        else:
+            prev_button_to_render = next_button
+        
+        Clock.tick(120)
 
         pygame.display.flip()
+
 
         
 
 if __name__ == "__main__":
-    """count = 0
+    count = 0
+
     
     while True:
         if MainMenu() == 1:
@@ -1089,7 +1194,4 @@ if __name__ == "__main__":
                 count += 1
 
         else:
-            Tutorial()"""
-
-
-    Tutorial()
+            Tutorial()
