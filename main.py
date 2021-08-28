@@ -331,10 +331,11 @@ def Game(DificultyAmount=0) -> int:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    MainPowerBar.increasing = True
+                    if MainPlayer.animation_state != 1:
+                        MainPowerBar.increasing = True
 
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and MainPlayer.animation_state != 1:
 
                     
 
